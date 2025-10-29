@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Archetype Survey</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --card: #1e2538;
+    --accent: #6366f1;
+    --accent-bg: rgba(99,102,241,.12);
+    --text-main: #f8fafc;
+    --text-dim: #94a3b8;
+    --radius-xl: 1rem;
+    --radius-lg: .75rem;
+    --radius-sm: .5rem;
+    --gap-lg: 1.5rem;
+    --gap-sm: .75rem;
+    --font: system-ui, -apple-system, BlinkMacSystemFont, "Inter", "Roboto", "Helvetica Neue", Arial, sans-serif;
+  }
+
+  body {
+    background: radial-gradient(circle at 20% 20%, #1f2937 0%, #0a0f1e 60%);
+    color: var(--text-main);
+    font-family: var(--font);
+    margin: 0;
+    padding: 2rem 1rem 4rem;
+    display: flex;
+    justify-content: center;
+  }
+
+  .app {
+    width: 100%;
+    max-width: 900px;
+    display: grid;
+    gap: 2rem;
+  }
+
+  header {
+    text-align: center;
+  }
+  header h1 {
+    font-size: clamp(1.4rem, .4vw + 1rem, 1.6rem);
+    font-weight: 600;
+    color: var(--text-main);
+    margin: 0 0 .5rem;
+  }
+  header p {
+    margin: 0;
+    color: var(--text-dim);
+    font-size: .9rem;
+    line-height: 1.4;
+  }
+
+  .quiz-card {
+    background: var(--card);
+    border-radius: var(--radius-xl);
+    padding: 1.5rem;
+    box-shadow: 0 30px 80px rgba(0,0,0,.7);
+    border: 1px solid rgba(148,163,184,.15);
+  }
+
+  .question-header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: baseline;
+    row-gap: .5rem;
+    margin-bottom: 1rem;
+  }
+  .question-index {
+    font-size: .8rem;
+    font-weight: 500;
+    color: var(--accent);
+    background: var(--accent-bg);
+    padding: .4rem .6rem;
+    border-radius: var(--radius-sm);
+    line-height: 1;
+  }
+  .question-text {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-main);
+    line-height: 1.4;
+    flex: 1;
+    padding-left: .5rem;
+  }
+
+  .answers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit,minmax(min(100%,400px),1fr));
+    gap: var(--gap-sm);
+  }
+
+  .answer-option {
+    position: relative;
+    cursor: pointer;
+    background: rgba(15,23,42,.4);
+    border: 1px solid rgba(148,163,184,.2);
+    border-radius: var(--radius-lg);
+    padding: .9rem .9rem .9rem 2.5rem;
+    font-size: .9rem;
+    line-height: 1.4;
+    color: var(--text-main);
+    transition: all .15s;
+  }
+
+  .answer-option:hover {
+    background: rgba(99,102,241,.08);
+    border-color: var(--accent);
+  }
+
+  .answer-option.selected {
+    background: rgba(99,102,241,.18);
+    border-color: var(--accent);
+    box-shadow: 0 12px 30px rgba(99,102,241,.3);
+  }
+
+  .answer-letter {
+    position: absolute;
+    left: .9rem;
+    top: .9rem;
+    width: 1.4rem;
+    height: 1.4rem;
+    border-radius: var(--radius-sm);
+    background: rgba(99,102,241,.15);
+    border: 1px solid var(--accent);
+    font-size: .7rem;
+    line-height: 1.4rem;
+    font-weight: 600;
+    text-align: center;
+    color: var(--accent);
+  }
+
+  .nav-row {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: .75rem;
+    margin-top: 1.5rem;
+  }
+
+  button.nav-btn {
+    appearance: none;
+    border: 0;
+    border-radius: var(--radius-lg);
+    font-size: .9rem;
+    font-weight: 600;
+    line-height: 1.2;
+    cursor: pointer;
+    padding: .8rem 1rem;
+    background: rgba(15,23,42,.6);
+    border: 1px solid rgba(148,163,184,.3);
+    color: var(--text-main);
+    min-width: 6rem;
+    transition: all .15s;
+  }
+  button.nav-btn[disabled] {
+    opacity: .3;
+    cursor: not-allowed;
+  }
+  button.nav-btn.primary {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    box-shadow: 0 20px 50px rgba(99,102,241,.5);
+  }
+  button.nav-btn.primary:disabled {
+    background: rgba(99,102,241,.3);
+    box-shadow: none;
+  }
+
+  .progress-bar-wrap {
+    background: rgba(148,163,184,.15);
+    border-radius: var(--radius-sm);
+    height: .4rem;
+    overflow: hidden;
+    margin-top: .5rem;
+  }
+  .progress-bar-inner {
+    height: 100%;
+    background: var(--accent);
+    width: 0%;
+    transition: width .2s;
+  }
+
+  /* Result card */
+  .result-card {
+    background: var(--card);
+    border-radius: var(--radius-xl);
+    padding: 1.5rem;
+    box-shadow: 0 30px 80px rgba(0,0,0,.7);
+    border: 1px solid rgba(148,163,184,.15);
+  }
+
+  .result-headline {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 .5rem;
+    color: var(--text-main);
+  }
+  .result-archetype {
+    color: var(--accent);
+    font-weight: 600;
+  }
+  .result-desc {
+    font-size: .9rem;
+    line-height: 1.5;
+    color: var(--text-dim);
+    margin: 0;
+  }
+
+  .restart-btn {
+    margin-top: 1.25rem;
+    font-size: .8rem;
+    background: rgba(15,23,42,.6);
+    border: 1px solid rgba(148,163,184,.4);
+    border-radius: var(--radius-lg);
+    color: var(--text-main);
+    padding: .6rem .9rem;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  /* Reference mapping section */
+  details.mapping {
+    background: rgba(15,23,42,.4);
+    border: 1px solid rgba(148,163,184,.2);
+    border-radius: var(--radius-lg);
+    padding: 1rem 1.25rem;
+    color: var(--text-dim);
+    font-size: .8rem;
+    line-height: 1.5;
+  }
+  details.mapping summary {
+    cursor: pointer;
+    color: var(--accent);
+    font-weight: 600;
+    outline: none;
+    font-size: .8rem;
+  }
+  .map-q {
+    margin-top: 1rem;
+    font-weight: 600;
+    color: var(--text-main);
+    font-size: .8rem;
+  }
+  .map-line {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: .75rem;
+    color: var(--text-dim);
+  }
+
+  /* mobile tweaks */
+  @media (max-width:480px){
+    .answer-option { font-size: .8rem; padding-left:2.2rem; }
+    .answer-letter { left:.7rem; top:.7rem; width:1.2rem; height:1.2rem; line-height:1.2rem; font-size:.65rem;}
+    .question-text { font-size:.9rem; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>Your Core Archetype Quiz</h1>
+    <p>Answer honestly. There are no wrong answers. At the end, you'll see which archetype shows up the most in you.</p>
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-inner" id="progressBar"></div>
+    </div>
+  </header>
+
+  <!-- QUIZ CARD -->
+  <section class="quiz-card" id="quizCard">
+    <div class="question-header">
+      <div class="question-index" id="qIndex">Question 1 of 8</div>
+      <div class="question-text" id="qText">...</div>
+    </div>
+
+    <div class="answers-grid" id="answersGrid">
+      <!-- answers injected here -->
+    </div>
+
+    <div class="nav-row">
+      <button class="nav-btn" id="prevBtn">← Back</button>
+      <button class="nav-btn primary" id="nextBtn">Next →</button>
+    </div>
+  </section>
+
+  <!-- RESULT CARD -->
+  <section class="result-card" id="resultCard" style="display:none;">
+    <h2 class="result-headline">
+      Your primary archetype is <span class="result-archetype" id="resultName"></span>.
+    </h2>
+    <p class="result-desc" id="resultDesc">
+      <!-- description injected -->
+    </p>
+    <button class="restart-btn" id="restartBtn">Restart quiz</button>
+  </section>
+
+  <!-- FULL MAPPING / REFERENCE -->
+ 
+</div>
+
+<script>
+/*
+  12 Archetypes we'll score:
+  Innocent, Everyperson, Hero, Caregiver, Explorer,
+  Rebel, Lover, Creator, Jester, Sage, Magician, Ruler
+*/
+
+const archetypeDescriptions = {
+  "Innocent": "You seek honesty, goodness, and peace. You believe life can be pure if we choose kindness.",
+  "Everyperson": "You value realness, connection, and belonging. You hate ego and want people to feel included.",
+  "Hero": "You push, fight, achieve. You prove that effort matters and strength can change outcomes.",
+  "Caregiver": "You nurture, protect, and heal. You feel responsible for easing other people’s pain.",
+  "Explorer": "You’re driven by freedom, discovery, and possibility. You refuse to be trapped.",
+  "Rebel": "You challenge broken systems and refuse to accept ‘that’s just how it is.’ You’re disruption energy.",
+  "Lover": "You live through passion, beauty, emotion, and intimacy. You want to feel alive and make others feel it too.",
+  "Creator": "You imagine what doesn’t exist yet and then build it. You need self-expression and originality.",
+  "Jester": "You bring lightness. You break tension, create joy, and remind people not to take life too seriously.",
+  "Sage": "You search for truth and understanding. You want clarity, insight, and honesty with yourself and others.",
+  "Magician": "You believe in transformation. You see potential others can’t see yet — and you help make it real.",
+  "Ruler": "You create structure, stability, and vision. You take responsibility for outcomes and shape the world around you."
+};
+
+// QUESTIONS + ANSWERS
+// Each answer: { letter, text, archetype }
+const quizData = [
+  {
+    q: "What motivates you most in life?",
+    answers: [
+      {letter:"A", text:"Happiness and peace of mind", archetype:"Innocent"},
+      {letter:"B", text:"Belonging and human connection", archetype:"Everyperson"},
+      {letter:"C", text:"Achievement and proving my worth", archetype:"Hero"},
+      {letter:"D", text:"Helping others and making a difference", archetype:"Caregiver"},
+      {letter:"E", text:"Freedom and discovery", archetype:"Explorer"},
+      {letter:"F", text:"Breaking rules and challenging systems", archetype:"Rebel"},
+      {letter:"G", text:"Love, passion, and beauty", archetype:"Lover"},
+      {letter:"H", text:"Creating something new and meaningful", archetype:"Creator"},
+      {letter:"I", text:"Fun, joy, and laughter", archetype:"Jester"},
+      {letter:"J", text:"Truth, knowledge, and understanding", archetype:"Sage"},
+      {letter:"K", text:"Transformation and magic", archetype:"Magician"},
+      {letter:"L", text:"Control, order, and legacy", archetype:"Ruler"},
+    ]
+  },
+  {
+    q: "What’s your biggest fear?",
+    answers: [
+      {letter:"A", text:"Being punished for doing something wrong", archetype:"Innocent"},
+      {letter:"B", text:"Being left out or rejected", archetype:"Everyperson"},
+      {letter:"C", text:"Failing or appearing weak", archetype:"Hero"},
+      {letter:"D", text:"Seeing others suffer", archetype:"Caregiver"},
+      {letter:"E", text:"Feeling trapped or tied down", archetype:"Explorer"},
+      {letter:"F", text:"Losing freedom or being controlled", archetype:"Rebel"},
+      {letter:"G", text:"Being unloved or unwanted", archetype:"Lover"},
+      {letter:"H", text:"Creating something meaningless", archetype:"Creator"},
+      {letter:"I", text:"Being bored or ignored", archetype:"Jester"},
+      {letter:"J", text:"Being deceived or ignorant", archetype:"Sage"},
+      {letter:"K", text:"Causing harm unintentionally", archetype:"Magician"},
+      {letter:"L", text:"Chaos and loss of control", archetype:"Ruler"},
+    ]
+  },
+  {
+    q: "When things go wrong, how do you react?",
+    answers: [
+      {letter:"A", text:"I stay hopeful — it’ll all work out", archetype:"Innocent"},
+      {letter:"B", text:"I look for comfort and community", archetype:"Everyperson"},
+      {letter:"C", text:"I take charge and fix it", archetype:"Hero"},
+      {letter:"D", text:"I care for whoever’s hurting", archetype:"Caregiver"},
+      {letter:"E", text:"I need space to find a new direction", archetype:"Explorer"},
+      {letter:"F", text:"I fight back — the system must change", archetype:"Rebel"},
+      {letter:"G", text:"I lean into love or beauty for strength", archetype:"Lover"},
+      {letter:"H", text:"I find a creative or clever solution", archetype:"Creator"},
+      {letter:"I", text:"I joke about it to ease tension", archetype:"Jester"},
+      {letter:"J", text:"I analyze the lesson in it", archetype:"Sage"},
+      {letter:"K", text:"I look for how to turn this into growth or transformation", archetype:"Magician"},
+      {letter:"L", text:"I restore order and take control", archetype:"Ruler"},
+    ]
+  },
+  {
+    q: "What kind of world do you want to live in?",
+    answers: [
+      {letter:"A", text:"Peaceful, pure, and fair", archetype:"Innocent"},
+      {letter:"B", text:"Friendly, inclusive, and real", archetype:"Everyperson"},
+      {letter:"C", text:"Strong, brave, and victorious", archetype:"Hero"},
+      {letter:"D", text:"Compassionate and caring", archetype:"Caregiver"},
+      {letter:"E", text:"Open, free, and full of adventure", archetype:"Explorer"},
+      {letter:"F", text:"Honest, bold, and liberated", archetype:"Rebel"},
+      {letter:"G", text:"Romantic, expressive, and beautiful", archetype:"Lover"},
+      {letter:"H", text:"Imaginative and inspiring", archetype:"Creator"},
+      {letter:"I", text:"Playful and joyful", archetype:"Jester"},
+      {letter:"J", text:"Wise and enlightened", archetype:"Sage"},
+      {letter:"K", text:"Transformative and full of wonder", archetype:"Magician"},
+      {letter:"L", text:"Balanced, structured, and visionary", archetype:"Ruler"},
+    ]
+  },
+  {
+    q: "Pick the motto that speaks to you most:",
+    answers: [
+      {letter:"A", text:"“Keep it simple. Keep it pure.”", archetype:"Innocent"},
+      {letter:"B", text:"“We’re all in this together.”", archetype:"Everyperson"},
+      {letter:"C", text:"“Where there’s a will, there’s a way.”", archetype:"Hero"},
+      {letter:"D", text:"“Love thy neighbor.”", archetype:"Caregiver"},
+      {letter:"E", text:"“Don’t fence me in.”", archetype:"Explorer"},
+      {letter:"F", text:"“Rules are meant to be broken.”", archetype:"Rebel"},
+      {letter:"G", text:"“All you need is love.”", archetype:"Lover"},
+      {letter:"H", text:"“If you can imagine it, you can make it.”", archetype:"Creator"},
+      {letter:"I", text:"“Life’s short — laugh more.”", archetype:"Jester"},
+      {letter:"J", text:"“The truth will set you free.”", archetype:"Sage"},
+      {letter:"K", text:"“Anything can change — if you believe.”", archetype:"Magician"},
+      {letter:"L", text:"“Power is earned through vision.”", archetype:"Ruler"},
+    ]
+  },
+  {
+    q: "What role do you usually play in a group?",
+    answers: [
+      {letter:"A", text:"The optimistic one", archetype:"Innocent"},
+      {letter:"B", text:"The easygoing one", archetype:"Everyperson"},
+      {letter:"C", text:"The one who takes charge", archetype:"Hero"},
+      {letter:"D", text:"The caretaker", archetype:"Caregiver"},
+      {letter:"E", text:"The wanderer suggesting new ideas", archetype:"Explorer"},
+      {letter:"F", text:"The challenger who shakes things up", archetype:"Rebel"},
+      {letter:"G", text:"The romantic or connector", archetype:"Lover"},
+      {letter:"H", text:"The one full of ideas", archetype:"Creator"},
+      {letter:"I", text:"The joker or entertainer", archetype:"Jester"},
+      {letter:"J", text:"The wise observer", archetype:"Sage"},
+      {letter:"K", text:"The one who sees potential in everyone", archetype:"Magician"},
+      {letter:"L", text:"The organizer or leader", archetype:"Ruler"},
+    ]
+  },
+  {
+    q: "How do you make decisions?",
+    answers: [
+      {letter:"A", text:"Based on what feels right in my heart", archetype:"Innocent"},
+      {letter:"B", text:"Based on what’s fair and relatable", archetype:"Everyperson"},
+      {letter:"C", text:"Based on what gets results", archetype:"Hero"},
+      {letter:"D", text:"Based on what helps the most people", archetype:"Caregiver"},
+      {letter:"E", text:"Based on where it leads me next", archetype:"Explorer"},
+      {letter:"F", text:"Based on whether it breaks the mold", archetype:"Rebel"},
+      {letter:"G", text:"Based on passion and emotion", archetype:"Lover"},
+      {letter:"H", text:"Based on intuition and creativity", archetype:"Creator"},
+      {letter:"I", text:"Based on what feels fun and light", archetype:"Jester"},
+      {letter:"J", text:"Based on logic and wisdom", archetype:"Sage"},
+      {letter:"K", text:"Based on what will transform the situation", archetype:"Magician"},
+      {letter:"L", text:"Based on structure, vision, and control", archetype:"Ruler"},
+    ]
+  },
+  {
+    q: "What kind of legacy do you want to leave?",
+    answers: [
+      {letter:"A", text:"Kindness and innocence", archetype:"Innocent"},
+      {letter:"B", text:"Friendship and community", archetype:"Everyperson"},
+      {letter:"C", text:"Courage and strength", archetype:"Hero"},
+      {letter:"D", text:"Healing and compassion", archetype:"Caregiver"},
+      {letter:"E", text:"Adventure and inspiration", archetype:"Explorer"},
+      {letter:"F", text:"Change and revolution", archetype:"Rebel"},
+      {letter:"G", text:"Love and beauty", archetype:"Lover"},
+      {letter:"H", text:"Innovation and creativity", archetype:"Creator"},
+      {letter:"I", text:"Laughter and joy", archetype:"Jester"},
+      {letter:"J", text:"Knowledge and clarity", archetype:"Sage"},
+      {letter:"K", text:"Transformation and magic", archetype:"Magician"},
+      {letter:"L", text:"Order and leadership", archetype:"Ruler"},
+    ]
+  }
+];
+
+let currentQ = 0;
+// answersChosen[i] = archetype selected for question i
+let answersChosen = new Array(quizData.length).fill(null);
+
+const qIndexEl = document.getElementById("qIndex");
+const qTextEl = document.getElementById("qText");
+const answersGridEl = document.getElementById("answersGrid");
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
+const quizCard = document.getElementById("quizCard");
+const resultCard = document.getElementById("resultCard");
+const resultNameEl = document.getElementById("resultName");
+const resultDescEl = document.getElementById("resultDesc");
+const restartBtn = document.getElementById("restartBtn");
+const progressBar = document.getElementById("progressBar");
+
+function renderQuestion() {
+  const total = quizData.length;
+  const qData = quizData[currentQ];
+
+  // header
+  qIndexEl.textContent = `Question ${currentQ + 1} of ${total}`;
+  qTextEl.textContent = qData.q;
+
+  // progress bar
+  const pct = ((currentQ) / total) * 100;
+  progressBar.style.width = pct + "%";
+
+  // answers
+  answersGridEl.innerHTML = "";
+  qData.answers.forEach((ans, idx) => {
+    const opt = document.createElement("div");
+    opt.className = "answer-option";
+    if (answersChosen[currentQ] === ans.archetype) {
+      opt.classList.add("selected");
+    }
+
+    opt.innerHTML = `
+      <div class="answer-letter">${ans.letter}</div>
+      <div class="answer-text"><strong>${ans.letter}.</strong> ${ans.text}</div>
+    `;
+
+    opt.addEventListener("click", () => {
+      answersChosen[currentQ] = ans.archetype;
+      renderQuestion(); // re-render to highlight selected
+    });
+
+    answersGridEl.appendChild(opt);
+  });
+
+  // nav button states
+  prevBtn.disabled = currentQ === 0;
+  // If we're on last question, button says "Finish"
+  if (currentQ === total - 1) {
+    nextBtn.textContent = "See my result →";
+  } else {
+    nextBtn.textContent = "Next →";
+  }
+
+  // Disable Next if nothing picked yet
+  nextBtn.disabled = answersChosen[currentQ] === null;
+}
+
+function calculateResult() {
+  // Count frequency of each archetype
+  const counts = {};
+  answersChosen.forEach(a => {
+    if (!counts[a]) counts[a] = 0;
+    counts[a] += 1;
+  });
+
+  // Find max
+  let topArchetype = null;
+  let topScore = -1;
+  for (const [arch, score] of Object.entries(counts)) {
+    if (score > topScore) {
+      topScore = score;
+      topArchetype = arch;
+    }
+  }
+
+  // fallback safety
+  if (!topArchetype) {
+    topArchetype = "Everyperson";
+  }
+
+  return topArchetype;
+}
+
+function showResult() {
+  // Fill 100% progress
+  progressBar.style.width = "100%";
+
+  const winner = calculateResult();
+  resultNameEl.textContent = "The " + winner;
+  resultDescEl.textContent = archetypeDescriptions[winner] || "";
+
+  quizCard.style.display = "none";
+  resultCard.style.display = "block";
+}
+
+prevBtn.addEventListener("click", () => {
+  if (currentQ > 0) {
+    currentQ -= 1;
+    renderQuestion();
+  }
+});
+
+nextBtn.addEventListener("click", () => {
+  const total = quizData.length;
+  if (currentQ < total - 1) {
+    // go forward
+    if (answersChosen[currentQ] !== null) {
+      currentQ += 1;
+      renderQuestion();
+    }
+  } else {
+    // last question -> show result
+    if (answersChosen[currentQ] !== null) {
+      showResult();
+    }
+  }
+});
+
+restartBtn.addEventListener("click", () => {
+  currentQ = 0;
+  answersChosen = new Array(quizData.length).fill(null);
+  resultCard.style.display = "none";
+  quizCard.style.display = "block";
+  renderQuestion();
+});
+
+// init
+renderQuestion();
+</script>
+</body>
+</html>
